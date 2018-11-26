@@ -21,3 +21,6 @@ $client->publish('hello/world', 'Message from SimpleClient', 1);
 $client->disconnect();
 $client->close();
 ```
+
+## Warning
+This library is still unstable, please *DON'T* use it in production.
