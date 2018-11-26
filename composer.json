@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "drmer/mqtt-packet": "dev-master"
+        "drmer/mqtt-packet": "^0.1"
     },
     "autoload": {
         "psr-4": {
@@ -23,12 +23,6 @@
     "autoload-dev": {
         "psr-4": {
             "Drmer\\Tests\\Mqtt\\Client\\": "tests"
-        }
-    },
-    "repositories": {
-        "local": {
-            "type": "path",
-            "url": "../packet/"
         }
     }
 }
