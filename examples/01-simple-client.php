@@ -1,13 +1,5 @@
-# mqtt-client
-Mqtt client in PHP
+<?php
 
-## Installation
-```sh
-composer require drmer\mqtt-client
-```
-
-## Usage
-```php
 use Drmer\Mqtt\Client\SimpleClient;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -20,4 +12,3 @@ $client->connect('127.0.0.1', 1883);
 $client->publish('hello/world', 'Message from SimpleClient', 1);
 $client->disconnect();
 $client->close();
-```
