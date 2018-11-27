@@ -60,18 +60,7 @@ abstract class BaseSyncClient {
     }
 
     protected function sendConnectPacket(ConnectionOptions $options) {
-        $packet = new Connect(
-            $this->version,
-            $options->username,
-            $options->password,
-            $options->clientId,
-            $options->cleanSession,
-            $options->willTopic,
-            $options->willMessage,
-            $options->willQos,
-            $options->willRetain,
-            $options->keepAlive
-        );
+        $packet = new Connect($options);
         $this->sendPacket($packet);
     }
 
