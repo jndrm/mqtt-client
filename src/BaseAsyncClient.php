@@ -11,11 +11,11 @@ use Drmer\Mqtt\Packet\Subscribe;
 use Drmer\Mqtt\Packet\Unsubscribe;
 use Drmer\Mqtt\Packet\ControlPacket;
 use Drmer\Mqtt\Packet\ConnectionOptions;
-use Drmer\Mqtt\Packet\MessageHelper;
+use Drmer\Mqtt\Packet\Utils\MessageHelper;
+use Drmer\Mqtt\Packet\Utils\Parser;
 use Drmer\Mqtt\Packet\ControlPacketType;
 use Drmer\Mqtt\Packet\ConnectionAck;
-use Drmer\Mqtt\Packet\PublishAck;
-use Drmer\Mqtt\Packet\PublishReceived;
+use Drmer\Mqtt\Packet\PingRequest;
 use Drmer\Mqtt\Packet\PublishRelease;
 use Drmer\Mqtt\Packet\PublishComplete;
 use League\Event\Emitter as EventEmitter;
@@ -28,9 +28,13 @@ abstract class BaseAsyncClient extends EventEmitter {
 
     public $debug = false;
 
-    public abstract function socketOpen($host, $port);
-    public abstract function socketSend($data);
-    public abstract function socketClose();
+    protected $connectOptions = null;
+
+    protected abstract function socketOpen($host, $port);
+    protected abstract function socketSend($data);
+    protected abstract function socketClose();
+    protected abstract function timerTick($msec, $callback);
+
     public abstract function isConnected();
 
     public function __construct(Version $version)
@@ -40,15 +44,36 @@ abstract class BaseAsyncClient extends EventEmitter {
 
     public static function v4()
     {
+        if (get_called_class() == 'Drmer\Mqtt\Client\BaseAsyncClient') {
+            throw new \RuntimeException("Error Processing Request");
+        }
         return new static(new Version4());
     }
 
     public function connect($host, $port, $opts=[])
     {
-        $this->addListener('connect', function () use ($opts) {
-            $this->sendConnectPacket(new ConnectionOptions($opts));
-        });
+        $this->connectOptions = new ConnectionOptions($opts);
+
+        $this->on('connect', [$this, 'onConnect']);
+
+        $this->on('connected', [$this, 'onConnected']);
+
         return $this->socketOpen($host, $port);
+    }
+
+    public function onConnect()
+    {
+        $packet = new Connect($this->connectOptions);
+        $this->sendPacket($packet);
+    }
+
+    public function onConnected()
+    {
+        if (($keepAlive = $this->connectOptions->keepAlive) > 0) {
+            $this->timerTick($keepAlive / 2, function() {
+                $this->sendPacket(new PingRequest());
+            });
+        }
     }
 
     protected function sendPacket(ControlPacket $packet)
@@ -61,18 +86,7 @@ abstract class BaseAsyncClient extends EventEmitter {
     }
 
     protected function sendConnectPacket(ConnectionOptions $options) {
-        $packet = new Connect(
-            $this->version,
-            $options->username,
-            $options->password,
-            $options->clientId,
-            $options->cleanSession,
-            $options->willTopic,
-            $options->willMessage,
-            $options->willQos,
-            $options->willRetain,
-            $options->keepAlive
-        );
+        $packet = new Connect($options);
         $this->sendPacket($packet);
     }
 
@@ -90,61 +104,71 @@ abstract class BaseAsyncClient extends EventEmitter {
 
     protected function onReceive($data)
     {
-        $controlPacketType = ord($data{0}) >> 4;
+        $controlType = ord($data{0}) >> 4;
 
-        echo "receive data (control is {$controlPacketType}): \n";
-        echo MessageHelper::getReadableByRawString($data);
+        if ($this->debug) {
+            $cmd = Parser::getCmd($controlType);
+            echo "receive data ($cmd): \n";
+            echo MessageHelper::getReadableByRawString($data);
+        }
 
-        switch ($controlPacketType) {
+        $packet = Parser::parse($data);
+        switch ($controlType) {
             case ControlPacketType::CONNACK:
-                $this->emit('connected', ConnectionAck::parse($this->version, $data));
-                return;
+                $this->emit('connected', $packet);
                 break;
             case ControlPacketType::PUBACK:
-                $this->emit('puback', PublishAck::parse($this->version, $data));
+                $this->onPublichAck($packet);
                 break;
             case ControlPacketType::PUBREC:
-                $this->onPublishReceive(PublishReceived::parse($this->version, $data));
+                $this->onPublishReceive($packet);
                 break;
             case ControlPacketType::PUBREL:
-                $this->onPublishRelease(PublishRelease::parse($this->version, $data));
+                $this->onPublishRelease($packet);
                 break;
             case ControlPacketType::PUBCOMP:
-                $this->onPublishComplete(PublishComplete::parse($this->version, $data));
+                $this->onPublishComplete($packet);
                 break;
             default:
                 break;
         }
     }
 
+    public function onPublichAck($packet)
+    {
+    }
+
     protected function onPublishReceive($packet)
     {
-        $packet = new PublishRelease($this->version);
+        $packet = new PublishRelease();
 
         $this->sendPacket($packet);
     }
 
     protected function onPublishComplete($packet)
     {
+        if ($this->debug) {
+            echo "public complete \n";
+        }
     }
 
     public function subscribe($topic, $qos = 0)
     {
-        $packet = new Subscribe($this->version);
+        $packet = new Subscribe();
         $packet->addSubscription($topic, $qos);
         return $this->sendPacket($packet);
     }
 
     public function unsubscribe($topic)
     {
-        $packet = new Unsubscribe($this->version);
+        $packet = new Unsubscribe();
         $packet->removeSubscription($topic);
         return $this->sendPacket($packet);
     }
 
     public function disconnect()
     {
-        $packet = new Disconnect($this->version);
+        $packet = new Disconnect();
         return $this->sendPacket($packet);
     }
 

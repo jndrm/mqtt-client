@@ -13,9 +13,9 @@ $client->connect('127.0.0.1', 1883, [
 ]);
 
 $client->on('connected', function () use ($client) {
-    $client->subscribe('test', 2);
-    $client->publish('test', 'swoole1', 2);
-    sleep(10);
-    $client->disconnect();
-    $client->close();
+    // $client->subscribe('test', 2);
+    $client->publish('hello/world', 'Message from SwooleClient', 2);
+    // sleep(10);
+    // $client->disconnect();
+    // $client->close();
 });

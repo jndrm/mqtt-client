@@ -11,7 +11,7 @@ use Drmer\Mqtt\Packet\Subscribe;
 use Drmer\Mqtt\Packet\Unsubscribe;
 use Drmer\Mqtt\Packet\ControlPacket;
 use Drmer\Mqtt\Packet\ConnectionOptions;
-use Drmer\Mqtt\Packet\MessageHelper;
+use Drmer\Mqtt\Packet\Utils\MessageHelper;
 
 abstract class BaseSyncClient {
     protected $socket;
@@ -25,6 +25,8 @@ abstract class BaseSyncClient {
     public abstract function socketSend($data);
     public abstract function socketClose();
 
+    public abstract function isConnected();
+
     public function __construct(Version $version)
     {
         $this->version = $version;
@@ -32,6 +34,9 @@ abstract class BaseSyncClient {
 
     public static function v4()
     {
+        if (get_called_class() == 'Drmer\Mqtt\Client\BaseSyncClient') {
+            throw new \RuntimeException("Error Processing Request");
+        }
         return new static(new Version4());
     }
 
