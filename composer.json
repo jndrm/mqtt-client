@@ -10,7 +10,8 @@
         }
     ],
     "require": {
-        "drmer/mqtt-packet": "^0.1"
+        "drmer/mqtt-packet": "^0.1",
+        "league/event": "^2.2"
     },
     "autoload": {
         "psr-4": {
