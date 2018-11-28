@@ -2,7 +2,7 @@
 
 namespace Drmer\Mqtt\Client;
 
-class SimpleClient extends BaseSyncClient {
+class SimpleClient extends BaseClient {
     private $errNo;
     private $errStr;
 
@@ -12,6 +12,7 @@ class SimpleClient extends BaseSyncClient {
         if ($this->errNo) {
             return false;
         }
+        $this->emit('connect');
         return true;
     }
 
@@ -32,5 +33,10 @@ class SimpleClient extends BaseSyncClient {
     public function isConnected()
     {
         return $this->socket && !$this->errNo;
+    }
+
+    public function timerTick($msec, $callback)
+    {
+        throw new \RuntimeException("SimpleClient does not support ticker");
     }
 }

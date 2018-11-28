@@ -2,16 +2,16 @@
 
 namespace Drmer\Tests\Mqtt\Client;
 
-use Drmer\Mqtt\Client\BaseAsyncClient;
+use Drmer\Mqtt\Client\BaseClient;
 
-class BaseAsyncClientTest extends TestCase {
+class BaseClientTest extends TestCase {
     public function testDirectCallBaseException()
     {
         $this->expectException(
             'RuntimeException',
-            'Error Processing Request'
+            'Could not instance from BaseClient'
         );
 
-        BaseAsyncClient::v4();
+        BaseClient::v4();
     }
 }

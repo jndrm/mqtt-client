@@ -5,7 +5,7 @@ namespace Drmer\Mqtt\Client;
 use Swoole\Client as SwooleSocket;
 use Swoole\Timer;
 
-class SwooleClient extends BaseAsyncClient {
+class SwooleClient extends BaseClient {
     public function socketOpen($host, $port)
     {
         $client = $this->socket = new SwooleSocket(SWOOLE_SOCK_TCP, SWOOLE_SOCK_ASYNC);

@@ -8,7 +8,7 @@ use React\Socket\ConnectionInterface as Connection;
 use React\EventLoop\Factory as LoopFactory;
 use React\Socket\TcpConnector;
 
-class ReactClient extends BaseAsyncClient {
+class ReactClient extends BaseClient {
     /**
      * @var $loop Loop
      */

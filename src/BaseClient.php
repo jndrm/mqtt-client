@@ -20,7 +20,7 @@ use Drmer\Mqtt\Packet\PublishRelease;
 use Drmer\Mqtt\Packet\PublishComplete;
 use League\Event\Emitter as EventEmitter;
 
-abstract class BaseAsyncClient extends EventEmitter {
+abstract class BaseClient extends EventEmitter {
     protected $socket;
 
     protected $version;
@@ -44,8 +44,8 @@ abstract class BaseAsyncClient extends EventEmitter {
 
     public static function v4()
     {
-        if (get_called_class() == 'Drmer\Mqtt\Client\BaseAsyncClient') {
-            throw new \RuntimeException("Error Processing Request");
+        if (get_called_class() == 'Drmer\Mqtt\Client\BaseClient') {
+            throw new \RuntimeException("Could not instance from BaseClient");
         }
         return new static(new Version4());
     }
