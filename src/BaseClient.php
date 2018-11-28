@@ -79,7 +79,7 @@ abstract class BaseClient extends EventEmitter {
     {
         $packet = new Publish($this->version);
         $packet->setTopic($topic);
-        $packet->setMessageId($this->messageCounter++);
+        $packet->setIdentifier($this->messageCounter++);
         $packet->setQos($qos);
         $packet->setDup($dup);
         $packet->setRetain($retain);
@@ -91,6 +91,7 @@ abstract class BaseClient extends EventEmitter {
     {
         $packet = new Subscribe();
         $packet->addSubscription($topic, $qos);
+        $packet->setIdentifier($this->messageCounter++);
         return $this->sendPacket($packet);
     }
 
@@ -168,7 +169,7 @@ abstract class BaseClient extends EventEmitter {
         $this->emit('message', $packet);
 
         $receivedPacket = new PublishReceived();
-        $receivedPacket->setMessageId($packet->getMessageId());
+        $receivedPacket->setIdentifier($packet->getIdentifier());
         $this->sendPacket($receivedPacket);
     }
 
@@ -179,7 +180,7 @@ abstract class BaseClient extends EventEmitter {
     protected function onPublishReceived($packet)
     {
         $releasePacket = new PublishRelease();
-        $releasePacket->setMessageId($packet->getMessageId());
+        $releasePacket->setIdentifier($packet->getIdentifier());
         $this->sendPacket($releasePacket);
     }
 
@@ -187,7 +188,7 @@ abstract class BaseClient extends EventEmitter {
     public function onPublishReleased($packet)
     {
         $completePacket = new PublishComplete();
-        $completePacket->setMessageId($packet->getMessageId());
+        $completePacket->setIdentifier($packet->getIdentifier());
         $this->sendPacket($completePacket);
     }
 
