@@ -17,6 +17,7 @@ use Drmer\Mqtt\Packet\ControlPacketType;
 use Drmer\Mqtt\Packet\ConnectionAck;
 use Drmer\Mqtt\Packet\PingRequest;
 use Drmer\Mqtt\Packet\PublishRelease;
+use Drmer\Mqtt\Packet\PublishReceived;
 use Drmer\Mqtt\Packet\PublishComplete;
 use League\Event\Emitter as EventEmitter;
 
@@ -56,8 +57,6 @@ abstract class BaseClient extends EventEmitter {
 
         $this->on('connect', [$this, 'onConnect']);
 
-        $this->on('connected', [$this, 'onConnected']);
-
         return $this->socketOpen($host, $port);
     }
 
@@ -67,15 +66,6 @@ abstract class BaseClient extends EventEmitter {
         $this->sendPacket($packet);
     }
 
-    public function onConnected()
-    {
-        if (($keepAlive = $this->connectOptions->keepAlive) > 0) {
-            $this->timerTick($keepAlive / 2, function() {
-                $this->sendPacket(new PingRequest());
-            });
-        }
-    }
-
     protected function sendPacket(ControlPacket $packet)
     {
         if ($this->debug) {
@@ -83,11 +73,6 @@ abstract class BaseClient extends EventEmitter {
             echo MessageHelper::getReadableByRawString($packet->get());
         }
         return $this->socketSend($packet->get());
-    }
-
-    protected function sendConnectPacket(ConnectionOptions $options) {
-        $packet = new Connect($options);
-        $this->sendPacket($packet);
     }
 
     public function publish($topic, $message, $qos = 1, $dup = false, $retain = false)
@@ -100,56 +85,6 @@ abstract class BaseClient extends EventEmitter {
         $packet->setRetain($retain);
         $packet->addRawToPayLoad($message);
         $this->sendPacket($packet);
-    }
-
-    protected function onReceive($data)
-    {
-        $controlType = ord($data{0}) >> 4;
-
-        if ($this->debug) {
-            $cmd = Parser::getCmd($controlType);
-            echo "receive data ($cmd): \n";
-            echo MessageHelper::getReadableByRawString($data);
-        }
-
-        $packet = Parser::parse($data);
-        switch ($controlType) {
-            case ControlPacketType::CONNACK:
-                $this->emit('connected', $packet);
-                break;
-            case ControlPacketType::PUBACK:
-                $this->onPublichAck($packet);
-                break;
-            case ControlPacketType::PUBREC:
-                $this->onPublishReceive($packet);
-                break;
-            case ControlPacketType::PUBREL:
-                $this->onPublishRelease($packet);
-                break;
-            case ControlPacketType::PUBCOMP:
-                $this->onPublishComplete($packet);
-                break;
-            default:
-                break;
-        }
-    }
-
-    public function onPublichAck($packet)
-    {
-    }
-
-    protected function onPublishReceive($packet)
-    {
-        $packet = new PublishRelease();
-
-        $this->sendPacket($packet);
-    }
-
-    protected function onPublishComplete($packet)
-    {
-        if ($this->debug) {
-            echo "public complete \n";
-        }
     }
 
     public function subscribe($topic, $qos = 0)
@@ -175,6 +110,92 @@ abstract class BaseClient extends EventEmitter {
     public function close()
     {
         $this->socketClose();
+    }
+
+    protected function onReceive($data)
+    {
+        $controlType = ord($data{0}) >> 4;
+        if ($this->debug) {
+            $cmd = Parser::getCmd($controlType);
+            echo "receive data ($cmd): \n";
+            echo MessageHelper::getReadableByRawString($data);
+        }
+
+        $packet = Parser::parse($data);
+        switch ($controlType) {
+            case ControlPacketType::CONNACK:
+                $this->onConnected($packet);
+                break;
+            case ControlPacketType::SUBACK:
+                $this->onSubscribeAck($packet);
+                break;
+            case ControlPacketType::PUBLISH:
+                $this->onMessage($packet);
+                break;
+            case ControlPacketType::PUBACK:
+                $this->onPublichAck($packet);
+                break;
+            case ControlPacketType::PUBREC:
+                $this->onPublishReceived($packet);
+                break;
+            case ControlPacketType::PUBREL:
+                $this->onPublishReleased($packet);
+                break;
+            case ControlPacketType::PUBCOMP:
+                $this->onPublishComplete($packet);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public function onConnected($packet)
+    {
+        $this->emit('connected', $packet);
+        if (($keepAlive = $this->connectOptions->keepAlive) > 0) {
+            $this->timerTick($keepAlive / 2, function() {
+                $this->sendPacket(new PingRequest());
+            });
+        }
+    }
+
+    public function onSubscribeAck($packet)
+    {
+    }
+
+    public function onMessage($packet)
+    {
+        $this->emit('message', $packet);
+
+        $receivedPacket = new PublishReceived();
+        $receivedPacket->setMessageId($packet->getMessageId());
+        $this->sendPacket($receivedPacket);
+    }
+
+    public function onPublichAck($packet)
+    {
+    }
+
+    protected function onPublishReceived($packet)
+    {
+        $releasePacket = new PublishRelease();
+        $releasePacket->setMessageId($packet->getMessageId());
+        $this->sendPacket($releasePacket);
+    }
+
+
+    public function onPublishReleased($packet)
+    {
+        $completePacket = new PublishComplete();
+        $completePacket->setMessageId($packet->getMessageId());
+        $this->sendPacket($completePacket);
+    }
+
+    protected function onPublishComplete($packet)
+    {
+        if ($this->debug) {
+            echo "public complete \n";
+        }
     }
 
     public function on($event, $listener, $priority = self::P_NORMAL)
