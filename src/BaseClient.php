@@ -83,7 +83,7 @@ abstract class BaseClient extends EventEmitter {
         $packet->setQos($qos);
         $packet->setDup($dup);
         $packet->setRetain($retain);
-        $packet->addRawToPayLoad($message);
+        $packet->setPayload($message);
         $this->sendPacket($packet);
     }
 
