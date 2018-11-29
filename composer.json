@@ -14,7 +14,7 @@
         "source": "https://github.com/jndrm/mqtt-client"
     },
     "require": {
-        "drmer/mqtt-packet": "^0.1",
+        "drmer/mqtt-packet": "^0.2",
         "league/event": "^2.2",
         "php": ">=5.6.0"
     },
