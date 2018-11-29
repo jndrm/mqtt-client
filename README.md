@@ -1,6 +1,10 @@
 # mqtt-client
 Mqtt client in PHP
 
+[![Build Status](https://travis-ci.org/jndrm/mqtt-client.svg?branch=master)](https://travis-ci.org/jndrm/mqtt-client)
+[![Maintainability](https://api.codeclimate.com/v1/badges/d0661759a9410f1a2e5d/maintainability)](https://codeclimate.com/github/jndrm/mqtt-client/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/d0661759a9410f1a2e5d/test_coverage)](https://codeclimate.com/github/jndrm/mqtt-client/test_coverage)
+
 ## Installation
 ```sh
 composer require drmer\mqtt-client
