@@ -29,12 +29,10 @@ abstract class BaseClient extends EventEmitter
 
     public $debug = false;
 
-    protected abstract function socketOpen($host, $port);
-    protected abstract function socketSend($data);
-    protected abstract function socketClose();
-    protected abstract function timerTick($seconds, $callback);
-
-    public abstract function isConnected();
+    abstract protected function socketOpen($host, $port);
+    abstract protected function socketSend($data);
+    abstract protected function socketClose();
+    abstract protected function timerTick($seconds, $callback);
 
     public function __construct(Version $version)
     {
