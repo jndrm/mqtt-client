@@ -7,7 +7,7 @@ Mqtt client in PHP
 
 ## Installation
 ```sh
-composer require drmer\mqtt-client
+composer require drmer/mqtt-client
 ```
 
 ## Usage
@@ -27,4 +27,4 @@ $client->close();
 ```
 
 ## Warning
-This library is still unstable, please *DON'T* use it in production.
+This library is still unstable, please *DO NOT* use this in production.

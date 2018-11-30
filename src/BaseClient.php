@@ -11,7 +11,6 @@ use Drmer\Mqtt\Packet\Subscribe;
 use Drmer\Mqtt\Packet\Unsubscribe;
 use Drmer\Mqtt\Packet\ControlPacket;
 use Drmer\Mqtt\Packet\ConnectionOptions;
-use Drmer\Mqtt\Packet\Utils\MessageHelper;
 use Drmer\Mqtt\Packet\Utils\Parser;
 use Drmer\Mqtt\Packet\ControlPacketType;
 use Drmer\Mqtt\Packet\ConnectionAck;
@@ -19,24 +18,21 @@ use Drmer\Mqtt\Packet\PingRequest;
 use Drmer\Mqtt\Packet\PublishRelease;
 use Drmer\Mqtt\Packet\PublishReceived;
 use Drmer\Mqtt\Packet\PublishComplete;
-use League\Event\Emitter as EventEmitter;
 
-abstract class BaseClient extends EventEmitter {
+abstract class BaseClient extends EventEmitter
+{
     protected $socket;
 
     protected $version;
     protected $messageCounter = 0;
+    protected $connectOptions = null;
 
     public $debug = false;
 
-    protected $connectOptions = null;
-
-    protected abstract function socketOpen($host, $port);
-    protected abstract function socketSend($data);
-    protected abstract function socketClose();
-    protected abstract function timerTick($msec, $callback);
-
-    public abstract function isConnected();
+    abstract protected function socketOpen($host, $port);
+    abstract protected function socketSend($data);
+    abstract protected function socketClose();
+    abstract protected function timerTick($seconds, $callback);
 
     public function __construct(Version $version)
     {
@@ -69,8 +65,8 @@ abstract class BaseClient extends EventEmitter {
     protected function sendPacket(ControlPacket $packet)
     {
         if ($this->debug) {
-            echo "send:\t\t" . get_class($packet) . "\n";
-            echo MessageHelper::getReadableByRawString($packet->get());
+            echo "send:\t\t" . get_class($packet);
+            $packet->debugPrint();
         }
         return $this->socketSend($packet->get());
     }
@@ -115,14 +111,17 @@ abstract class BaseClient extends EventEmitter {
 
     protected function onReceive($data)
     {
+        $packet = Parser::parse($data);
+        if ($packet == null) {
+            return;
+        }
         $controlType = ord($data{0}) >> 4;
         if ($this->debug) {
             $cmd = Parser::getCmd($controlType);
-            echo "receive data ($cmd): \n";
-            echo MessageHelper::getReadableByRawString($data);
+            echo "receive data ($cmd): ";
+            $packet->debugPrint();
         }
 
-        $packet = Parser::parse($data);
         switch ($controlType) {
             case ControlPacketType::CONNACK:
                 $this->onConnected($packet);
@@ -154,7 +153,7 @@ abstract class BaseClient extends EventEmitter {
     {
         $this->emit('connected', $packet);
         if (($keepAlive = $this->connectOptions->keepAlive) > 0) {
-            $this->timerTick($keepAlive / 2, function() {
+            $this->timerTick($keepAlive / 2, function () {
                 $this->sendPacket(new PingRequest());
             });
         }
@@ -197,15 +196,5 @@ abstract class BaseClient extends EventEmitter {
         if ($this->debug) {
             echo "public complete \n";
         }
-    }
-
-    public function on($event, $listener, $priority = self::P_NORMAL)
-    {
-        parent::addListener($event, $listener, $priority);
-    }
-
-    public function off($event, $listener)
-    {
-        parent::removeListener($event, $listener);
     }
 }

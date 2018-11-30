@@ -2,7 +2,8 @@
 
 namespace Drmer\Mqtt\Client;
 
-class SimpleClient extends BaseClient {
+class SimpleClient extends BaseClient
+{
     private $errNo;
     private $errStr;
 

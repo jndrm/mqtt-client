@@ -6,7 +6,8 @@ use Drmer\Mqtt\Client\ReactClient;
 use Drmer\Mqtt\Packet\ConnectionAck;
 use Drmer\Mqtt\Packet\Utils\Parser;
 
-class ReactClientTest extends TestCase {
+class ReactClientTest extends TestCase
+{
     public function testExistance()
     {
         $this->assertTrue(class_exists('\Drmer\Mqtt\Client\ReactClient'));
