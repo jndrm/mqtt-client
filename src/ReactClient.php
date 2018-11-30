@@ -63,7 +63,7 @@ class ReactClient extends BaseClient
         }
     }
 
-    public function timerTick($seconds, $callback)
+    protected function timerTick($seconds, $callback)
     {
         $this->loop->addPeriodicTimer($seconds, $callback);
     }

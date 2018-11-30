@@ -43,7 +43,7 @@ class SwooleClient extends BaseClient
         $this->socket->close();
     }
 
-    public function timerTick($seconds, $callback)
+    protected function timerTick($seconds, $callback)
     {
         Timer::tick($seconds * 1000, $callback);
     }
