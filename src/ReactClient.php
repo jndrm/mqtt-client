@@ -16,6 +16,8 @@ class ReactClient extends BaseClient
     private $loop;
     private $socketConnector;
 
+    private $timers = [];
+
     public function __construct(Version $version)
     {
         parent::__construct($version);
@@ -41,6 +43,9 @@ class ReactClient extends BaseClient
 
     public function socketClose()
     {
+        foreach ($this->timers as $timer) {
+            $this->loop->cancelTimer($timer);
+        }
         $this->socket->close();
     }
 
@@ -65,7 +70,7 @@ class ReactClient extends BaseClient
 
     protected function timerTick($seconds, $callback)
     {
-        $this->loop->addPeriodicTimer($seconds, $callback);
+        $this->timers[] = $this->loop->addPeriodicTimer($seconds, $callback);
     }
 
     public function getLoop()

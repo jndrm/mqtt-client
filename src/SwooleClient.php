@@ -7,6 +7,8 @@ use Swoole\Timer;
 
 class SwooleClient extends BaseClient
 {
+    protected $timerIds = [];
+
     public function socketOpen($host, $port)
     {
         $client = $this->socket = new SwooleSocket(SWOOLE_SOCK_TCP, SWOOLE_SOCK_ASYNC);
@@ -40,11 +42,14 @@ class SwooleClient extends BaseClient
 
     public function socketClose()
     {
+        foreach ($this->timerIds as $timerId) {
+            Timer::clear($timerId);
+        }
         $this->socket->close();
     }
 
     protected function timerTick($seconds, $callback)
     {
-        Timer::tick($seconds * 1000, $callback);
+        $this->timerIds[] = Timer::tick($seconds * 1000, $callback);
     }
 }
