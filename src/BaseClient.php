@@ -19,7 +19,6 @@ use Drmer\Mqtt\Packet\PingRequest;
 use Drmer\Mqtt\Packet\PublishRelease;
 use Drmer\Mqtt\Packet\PublishReceived;
 use Drmer\Mqtt\Packet\PublishComplete;
-use League\Event\Emitter as EventEmitter;
 
 abstract class BaseClient extends EventEmitter {
     protected $socket;
@@ -197,15 +196,5 @@ abstract class BaseClient extends EventEmitter {
         if ($this->debug) {
             echo "public complete \n";
         }
-    }
-
-    public function on($event, $listener, $priority = self::P_NORMAL)
-    {
-        parent::addListener($event, $listener, $priority);
-    }
-
-    public function off($event, $listener)
-    {
-        parent::removeListener($event, $listener);
     }
 }
