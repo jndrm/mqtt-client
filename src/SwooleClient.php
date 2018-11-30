@@ -25,11 +25,15 @@ class SwooleClient extends BaseClient
         });
 
         $client->on("error", function (SwooleSocket $cli) {
-            echo "error\n";
+            if ($this->debug) {
+                echo "error\n";
+            }
         });
 
         $client->on("close", function (SwooleSocket $cli) {
-            echo "Connection close\n";
+            if ($this->debug) {
+                echo "Connection close\n";
+            }
         });
 
         $this->socket->connect($host, $port, 30);
