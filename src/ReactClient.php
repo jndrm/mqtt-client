@@ -44,11 +44,6 @@ class ReactClient extends BaseClient
         $this->socket->close();
     }
 
-    public function isConnected()
-    {
-        return null != $this->socket;
-    }
-
     public function onData($rawData)
     {
         foreach ($this->getNextPacket($rawData) as $data) {

@@ -47,9 +47,4 @@ class SwooleClient extends BaseClient
     {
         Timer::tick($seconds * 1000, $callback);
     }
-
-    public function isConnected()
-    {
-        return $this->socket->isConnected();
-    }
 }
