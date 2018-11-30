@@ -20,7 +20,7 @@ use Drmer\Mqtt\Packet\PublishRelease;
 use Drmer\Mqtt\Packet\PublishReceived;
 use Drmer\Mqtt\Packet\PublishComplete;
 
-abstract class BaseClient extends EventEmitter {
+abstract class BaseClient extends EventEmitter implements ClientInterface {
     protected $socket;
 
     protected $version;
@@ -30,12 +30,6 @@ abstract class BaseClient extends EventEmitter {
 
     protected $connectOptions = null;
 
-    protected abstract function socketOpen($host, $port);
-    protected abstract function socketSend($data);
-    protected abstract function socketClose();
-    protected abstract function timerTick($msec, $callback);
-
-    public abstract function isConnected();
 
     public function __construct(Version $version)
     {
