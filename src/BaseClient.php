@@ -151,12 +151,12 @@ abstract class BaseClient extends EventEmitter
 
     public function onConnected($packet)
     {
-        $this->emit('connected', $packet);
         if (($keepAlive = $this->connectOptions->keepAlive) > 0) {
             $this->timerTick($keepAlive / 2, function () {
                 $this->sendPacket(new PingRequest());
             });
         }
+        $this->emit('connected', $packet);
     }
 
     public function onSubscribeAck($packet)
