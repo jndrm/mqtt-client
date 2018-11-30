@@ -67,4 +67,9 @@ class ReactClient extends BaseClient
     {
         $this->loop->addPeriodicTimer($seconds, $callback);
     }
+
+    public function getLoop()
+    {
+        return $this->loop;
+    }
 }

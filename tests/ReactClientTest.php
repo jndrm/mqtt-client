@@ -27,4 +27,10 @@ class ReactClientTest extends TestCase
             $this->assertInstanceOf('Drmer\Mqtt\Packet\ConnectionAck', $packet);
         }
     }
+
+    public function testGetLoop()
+    {
+        $client = ReactClient::v4();
+        $this->assertInstanceOf('React\EventLoop\LoopInterface', $client->getLoop());
+    }
 }
