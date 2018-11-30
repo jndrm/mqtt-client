@@ -3,6 +3,7 @@
 namespace Drmer\Tests\Mqtt\Client;
 
 use Drmer\Mqtt\Client\SimpleClient;
+use Drmer\Mqtt\Packet\Protocol\Version4;
 
 class SimpleClientTest extends TestCase
 {
@@ -13,6 +14,13 @@ class SimpleClientTest extends TestCase
 
     public function testConstructor()
     {
-        $this->assertTrue(null != SimpleClient::v4());
+        $instance = new SimpleClient(new Version4());
+        $this->assertInstanceOf(SimpleClient::class, $instance);
+    }
+
+    public function testStaticV4()
+    {
+        $instance = SimpleClient::v4();
+        $this->assertInstanceOf(SimpleClient::class, $instance);
     }
 }
