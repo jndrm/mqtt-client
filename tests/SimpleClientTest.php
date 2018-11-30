@@ -4,7 +4,8 @@ namespace Drmer\Tests\Mqtt\Client;
 
 use Drmer\Mqtt\Client\SimpleClient;
 
-class SimpleClientTest extends TestCase {
+class SimpleClientTest extends TestCase
+{
     public function testExistance()
     {
         $this->assertTrue(class_exists('\Drmer\Mqtt\Client\SimpleClient'));

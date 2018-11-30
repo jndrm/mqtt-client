@@ -8,7 +8,8 @@ use React\Socket\ConnectionInterface as Connection;
 use React\EventLoop\Factory as LoopFactory;
 use React\Socket\TcpConnector;
 
-class ReactClient extends BaseClient {
+class ReactClient extends BaseClient
+{
     /**
      * @var $loop Loop
      */
@@ -25,7 +26,7 @@ class ReactClient extends BaseClient {
     public function socketOpen($host, $port)
     {
         $promise = $this->socketConnector->connect("tcp://{$host}:{$port}");
-        $promise->then(function(Connection $stream) {
+        $promise->then(function (Connection $stream) {
             $this->socket = $stream;
             $this->emit('connect');
             $stream->on('data', [$this, 'onData']);
@@ -57,7 +58,7 @@ class ReactClient extends BaseClient {
 
     public function getNextPacket($remainingData)
     {
-        while(isset($remainingData{1})) {
+        while (isset($remainingData{1})) {
             $remainingLength = ord($remainingData{1});
             $packetLength = 2 + $remainingLength;
             $nextPacketData = substr($remainingData, 0, $packetLength);

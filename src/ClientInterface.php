@@ -2,12 +2,13 @@
 
 namespace Drmer\Mqtt\Client;
 
-interface ClientInterface {
-    function socketOpen($host, $port);
-    function socketSend($data);
-    function socketClose();
+interface ClientInterface
+{
+    public function socketOpen($host, $port);
+    public function socketSend($data);
+    public function socketClose();
 
-    function timerTick($seconds, $callback);
+    public function timerTick($seconds, $callback);
 
-    function isConnected();
+    public function isConnected();
 }

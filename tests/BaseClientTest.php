@@ -4,7 +4,8 @@ namespace Drmer\Tests\Mqtt\Client;
 
 use Drmer\Mqtt\Client\BaseClient;
 
-class BaseClientTest extends TestCase {
+class BaseClientTest extends TestCase
+{
     public function testDirectCallBaseException()
     {
         $this->expectException(

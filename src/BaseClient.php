@@ -19,7 +19,8 @@ use Drmer\Mqtt\Packet\PublishRelease;
 use Drmer\Mqtt\Packet\PublishReceived;
 use Drmer\Mqtt\Packet\PublishComplete;
 
-abstract class BaseClient extends EventEmitter implements ClientInterface {
+abstract class BaseClient extends EventEmitter implements ClientInterface
+{
     protected $socket;
 
     protected $version;
@@ -147,7 +148,7 @@ abstract class BaseClient extends EventEmitter implements ClientInterface {
     {
         $this->emit('connected', $packet);
         if (($keepAlive = $this->connectOptions->keepAlive) > 0) {
-            $this->timerTick($keepAlive / 2, function() {
+            $this->timerTick($keepAlive / 2, function () {
                 $this->sendPacket(new PingRequest());
             });
         }

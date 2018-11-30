@@ -5,7 +5,8 @@ namespace Drmer\Mqtt\Client;
 use Swoole\Client as SwooleSocket;
 use Swoole\Timer;
 
-class SwooleClient extends BaseClient {
+class SwooleClient extends BaseClient
+{
     public function socketOpen($host, $port)
     {
         $client = $this->socket = new SwooleSocket(SWOOLE_SOCK_TCP, SWOOLE_SOCK_ASYNC);
@@ -13,19 +14,19 @@ class SwooleClient extends BaseClient {
             'open_mqtt_protocol' => true,
         ]);
 
-        $client->on('connect', function() {
+        $client->on('connect', function () {
             $this->emit('connect');
         });
 
-        $client->on("receive", function(SwooleSocket $cli, $data) {
+        $client->on("receive", function (SwooleSocket $cli, $data) {
             $this->onReceive($data);
         });
 
-        $client->on("error", function(SwooleSocket $cli) {
+        $client->on("error", function (SwooleSocket $cli) {
             echo "error\n";
         });
 
-        $client->on("close", function(SwooleSocket $cli) {
+        $client->on("close", function (SwooleSocket $cli) {
             echo "Connection close\n";
         });
 
