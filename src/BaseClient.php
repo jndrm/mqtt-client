@@ -51,12 +51,12 @@ abstract class BaseClient extends EventEmitter
     {
         $this->connectOptions = new ConnectionOptions($opts);
 
-        $this->on('connect', [$this, 'onConnect']);
+        $this->on('start', [$this, 'onStart']);
 
         return $this->socketOpen($host, $port);
     }
 
-    public function onConnect()
+    public function onStart()
     {
         $packet = new Connect($this->connectOptions);
         $this->sendPacket($packet);

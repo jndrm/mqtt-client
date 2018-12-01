@@ -17,7 +17,7 @@ class SwooleClient extends BaseClient
         ]);
 
         $client->on('connect', function () {
-            $this->emit('connect');
+            $this->emit('start');
         });
 
         $client->on("receive", function (SwooleSocket $cli, $data) {

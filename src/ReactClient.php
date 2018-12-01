@@ -30,7 +30,7 @@ class ReactClient extends BaseClient
         $promise = $this->socketConnector->connect("tcp://{$host}:{$port}");
         $promise->then(function (Connection $stream) {
             $this->socket = $stream;
-            $this->emit('connect');
+            $this->emit('start');
             $stream->on('data', [$this, 'onData']);
         });
         $this->loop->run();
