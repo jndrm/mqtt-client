@@ -15,7 +15,7 @@ $client->on('connected', function () use ($client) {
     $client->publish('drmer/mqtt', 'Message from ReactClient with Qos 1', 1);
     $client->publish('drmer/mqtt', 'Message from ReactClient with Qos 2', 2);
 
-    $client->getLoop()->addTimer(1, function () use ($client) {
+    $client->getLoop()->addTimer(2, function () use ($client) {
         $client->disconnect();
         $client->close();
     });
