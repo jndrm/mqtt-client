@@ -41,6 +41,9 @@ class SwooleClient extends BaseClient
 
     public function socketSend($data)
     {
+        if (!$this->socket || !$this->socket->isConnected()) {
+            throw new \Exception("Connection Lost");
+        }
         $this->socket->send($data);
     }
 

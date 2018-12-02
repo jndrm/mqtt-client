@@ -68,7 +68,13 @@ abstract class BaseClient extends EventEmitter
             echo "send:\t\t" . get_class($packet);
             $packet->debugPrint();
         }
-        return $this->socketSend($packet->get());
+        try {
+            $this->socketSend($packet->get());
+        } catch (\Exception $e) {
+            if ($this->debug) {
+                echo $e->getMessage() . "\n";
+            }
+        }
     }
 
     public function publish($topic, $message, $qos = 1, $dup = false, $retain = false)
