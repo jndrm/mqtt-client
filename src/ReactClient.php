@@ -25,7 +25,7 @@ class ReactClient extends BaseClient
         $this->socketConnector = new TcpConnector($this->loop);
     }
 
-    public function socketOpen($host, $port)
+    protected function socketOpen($host, $port)
     {
         $promise = $this->socketConnector->connect("tcp://{$host}:{$port}");
         $promise->then(function (Connection $stream) {
@@ -36,12 +36,12 @@ class ReactClient extends BaseClient
         $this->loop->run();
     }
 
-    public function socketSend($data)
+    protected function socketSend($data)
     {
         $this->socket->write($data);
     }
 
-    public function socketClose()
+    protected function socketClose()
     {
         foreach ($this->timers as $timer) {
             $this->loop->cancelTimer($timer);
@@ -56,7 +56,7 @@ class ReactClient extends BaseClient
         }
     }
 
-    public function getNextPacket($remainingData)
+    protected function getNextPacket($remainingData)
     {
         while (isset($remainingData{1})) {
             $remainingLength = ord($remainingData{1});

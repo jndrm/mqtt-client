@@ -9,7 +9,7 @@ class SwooleClient extends BaseClient
 {
     protected $timerIds = [];
 
-    public function socketOpen($host, $port)
+    protected function socketOpen($host, $port)
     {
         $client = $this->socket = new SwooleSocket(SWOOLE_SOCK_TCP, SWOOLE_SOCK_ASYNC);
         $client->set([
@@ -39,7 +39,7 @@ class SwooleClient extends BaseClient
         $this->socket->connect($host, $port, 30);
     }
 
-    public function socketSend($data)
+    protected function socketSend($data)
     {
         if (!$this->socket || !$this->socket->isConnected()) {
             throw new \Exception("Connection Lost");
@@ -47,7 +47,7 @@ class SwooleClient extends BaseClient
         $this->socket->send($data);
     }
 
-    public function socketClose()
+    protected function socketClose()
     {
         foreach ($this->timerIds as $timerId) {
             Timer::clear($timerId);
