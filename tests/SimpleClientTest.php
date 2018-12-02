@@ -27,7 +27,7 @@ class SimpleClientTest extends TestCase
     public function testConnect()
     {
         $client = SimpleClient::v4();
-        $client->connect('127.0.0.1', 1883);
+        $client->connect('test.mosquitto.org', 1883);
         $this->assertTrue(true);
     }
 }
