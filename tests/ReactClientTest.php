@@ -18,16 +18,6 @@ class ReactClientTest extends TestCase
         $this->assertTrue(null != ReactClient::v4());
     }
 
-    public function testGetNextPacket()
-    {
-        $connectAckPacket = new ConnectionAck();
-        $client = ReactClient::v4();
-        foreach ($client->getNextPacket($connectAckPacket->get()) as $data) {
-            $packet = Parser::parse($data);
-            $this->assertInstanceOf('Drmer\Mqtt\Packet\ConnectionAck', $packet);
-        }
-    }
-
     public function testGetLoop()
     {
         $client = ReactClient::v4();
