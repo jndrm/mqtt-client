@@ -13,7 +13,7 @@ class SimpleClient extends BaseClient
         if ($this->errNo) {
             return false;
         }
-        $this->emit('connect');
+        $this->emit('start');
         return true;
     }
 
