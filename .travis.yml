@@ -19,6 +19,9 @@ script:
   - composer install
   - composer require react/socket
   - php vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
+  - php examples/01-simple-client.php
+  - php examples/02-swoole-client.php
+  - php examples/03-react-client.php
 
 after_script:
   - if [ $(phpenv version-name) = "7.2" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi

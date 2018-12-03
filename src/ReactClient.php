@@ -16,6 +16,8 @@ class ReactClient extends BaseClient
     private $loop;
     private $socketConnector;
 
+    private $timers = [];
+
     public function __construct(Version $version)
     {
         parent::__construct($version);
@@ -23,30 +25,28 @@ class ReactClient extends BaseClient
         $this->socketConnector = new TcpConnector($this->loop);
     }
 
-    public function socketOpen($host, $port)
+    protected function socketOpen($host, $port)
     {
         $promise = $this->socketConnector->connect("tcp://{$host}:{$port}");
         $promise->then(function (Connection $stream) {
             $this->socket = $stream;
-            $this->emit('connect');
+            $this->emit('start');
             $stream->on('data', [$this, 'onData']);
         });
         $this->loop->run();
     }
 
-    public function socketSend($data)
+    protected function socketSend($data)
     {
         $this->socket->write($data);
     }
 
-    public function socketClose()
+    protected function socketClose()
     {
+        foreach ($this->timers as $timer) {
+            $this->loop->cancelTimer($timer);
+        }
         $this->socket->close();
-    }
-
-    public function isConnected()
-    {
-        return null != $this->socket;
     }
 
     public function onData($rawData)
@@ -56,7 +56,7 @@ class ReactClient extends BaseClient
         }
     }
 
-    public function getNextPacket($remainingData)
+    protected function getNextPacket($remainingData)
     {
         while (isset($remainingData{1})) {
             $remainingLength = ord($remainingData{1});
@@ -68,8 +68,13 @@ class ReactClient extends BaseClient
         }
     }
 
-    public function timerTick($seconds, $callback)
+    protected function timerTick($seconds, $callback)
     {
-        $this->loop->addPeriodicTimer($seconds, $callback);
+        $this->timers[] = $this->loop->addPeriodicTimer($seconds, $callback);
+    }
+
+    public function getLoop()
+    {
+        return $this->loop;
     }
 }

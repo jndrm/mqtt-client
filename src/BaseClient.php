@@ -51,12 +51,12 @@ abstract class BaseClient extends EventEmitter
     {
         $this->connectOptions = new ConnectionOptions($opts);
 
-        $this->on('connect', [$this, 'onConnect']);
+        $this->on('start', [$this, 'onStart']);
 
         return $this->socketOpen($host, $port);
     }
 
-    public function onConnect()
+    public function onStart()
     {
         $packet = new Connect($this->connectOptions);
         $this->sendPacket($packet);
@@ -68,7 +68,13 @@ abstract class BaseClient extends EventEmitter
             echo "send:\t\t" . get_class($packet);
             $packet->debugPrint();
         }
-        return $this->socketSend($packet->get());
+        try {
+            $this->socketSend($packet->get());
+        } catch (\Exception $e) {
+            if ($this->debug) {
+                echo $e->getMessage() . "\n";
+            }
+        }
     }
 
     public function publish($topic, $message, $qos = 1, $dup = false, $retain = false)
@@ -151,12 +157,12 @@ abstract class BaseClient extends EventEmitter
 
     public function onConnected($packet)
     {
-        $this->emit('connected', $packet);
         if (($keepAlive = $this->connectOptions->keepAlive) > 0) {
             $this->timerTick($keepAlive / 2, function () {
                 $this->sendPacket(new PingRequest());
             });
         }
+        $this->emit('connected', $packet);
     }
 
     public function onSubscribeAck($packet)

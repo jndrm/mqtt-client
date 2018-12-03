@@ -9,11 +9,16 @@ $client = ReactClient::v4();
 // $client->debug = true;
 
 $client->on('connected', function () use ($client) {
-    $client->subscribe('test', 2);
     $client->subscribe('hello/world', 1);
-    $client->publish('test', 'Message from ReactClient with Qos 0', 0);
-    $client->publish('test', 'Message from ReactClient with Qos 1', 1);
-    $client->publish('test', 'Message from ReactClient with Qos 2', 2);
+    $client->subscribe('drmer/mqtt', 2);
+    $client->publish('drmer/mqtt', 'Message from ReactClient with Qos 0', 0);
+    $client->publish('drmer/mqtt', 'Message from ReactClient with Qos 1', 1);
+    $client->publish('drmer/mqtt', 'Message from ReactClient with Qos 2', 2);
+
+    $client->getLoop()->addTimer(2, function () use ($client) {
+        $client->disconnect();
+        $client->close();
+    });
 });
 
 $client->on('message', function ($event, $packet) {
@@ -21,10 +26,12 @@ $client->on('message', function ($event, $packet) {
     echo $packet->getTopic() . ': ' . $packet->getPayload() . "\n";
 });
 
-$client->connect('127.0.0.1', 1883, [
-    'clientId' => 'react-client',
-    'willTopic' => 'hello/world',
+$ip = gethostbyname('test.mosquitto.org');
+
+$client->connect($ip, 1883, [
+    'clientId' => 'drmer-mqtt-react-client',
+    'willTopic' => 'drmer/mqtt',
     'willQos' => 1,
-    'willMessage' => 'hello',
+    'willMessage' => 'willMessage from ReactClient',
     'keepAlive' => 10,
 ]);

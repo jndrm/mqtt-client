@@ -31,11 +31,6 @@ class SimpleClient extends BaseClient
         fclose($this->socket);
     }
 
-    public function isConnected()
-    {
-        return $this->socket && !$this->errNo;
-    }
-
     public function timerTick($msec, $callback)
     {
         throw new \RuntimeException("SimpleClient does not support ticker");

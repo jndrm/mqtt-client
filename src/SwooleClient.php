@@ -7,7 +7,9 @@ use Swoole\Timer;
 
 class SwooleClient extends BaseClient
 {
-    public function socketOpen($host, $port)
+    protected $timerIds = [];
+
+    protected function socketOpen($host, $port)
     {
         $client = $this->socket = new SwooleSocket(SWOOLE_SOCK_TCP, SWOOLE_SOCK_ASYNC);
         $client->set([
@@ -15,7 +17,7 @@ class SwooleClient extends BaseClient
         ]);
 
         $client->on('connect', function () {
-            $this->emit('connect');
+            $this->emit('start');
         });
 
         $client->on("receive", function (SwooleSocket $cli, $data) {
@@ -23,33 +25,38 @@ class SwooleClient extends BaseClient
         });
 
         $client->on("error", function (SwooleSocket $cli) {
-            echo "error\n";
+            if ($this->debug) {
+                echo "error\n";
+            }
         });
 
         $client->on("close", function (SwooleSocket $cli) {
-            echo "Connection close\n";
+            if ($this->debug) {
+                echo "Connection close\n";
+            }
         });
 
         $this->socket->connect($host, $port, 30);
     }
 
-    public function socketSend($data)
+    protected function socketSend($data)
     {
+        if (!$this->socket || !$this->socket->isConnected()) {
+            throw new \Exception("Connection Lost");
+        }
         $this->socket->send($data);
     }
 
-    public function socketClose()
+    protected function socketClose()
     {
+        foreach ($this->timerIds as $timerId) {
+            Timer::clear($timerId);
+        }
         $this->socket->close();
     }
 
-    public function timerTick($seconds, $callback)
+    protected function timerTick($seconds, $callback)
     {
-        Timer::tick($seconds * 1000, $callback);
-    }
-
-    public function isConnected()
-    {
-        return $this->socket->isConnected();
+        $this->timerIds[] = Timer::tick($seconds * 1000, $callback);
     }
 }
